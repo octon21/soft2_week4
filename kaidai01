@@ -1,0 +1,20 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define LEN 100
+
+int main(){
+  char buf[LEN];
+
+  strcpy(buf, "Hello, World\n");
+
+  FILE *fp;
+
+  fp=fopen("binary_helloworld", "wb");
+  size_t wsize=fwrite(buf, sizeof(char),LEN, fp);
+
+  printf("%s", buf);
+  printf("%zu\n", wsize);
+  fclose(fp);
+  return 0;
+}
