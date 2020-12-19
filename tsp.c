@@ -216,18 +216,18 @@ double solve(const City *city, int n, int *route)
     random2=rand()%n;
   
   double now_d=0;
-  for (int i = 0 ; i < n ; i++){
-    const int c0 = route[i];
-    const int c1 = route[(i+1)%n]; // nは0に戻る
+  for (int j = 0 ; j < n ; j++){
+    const int c0 = route[j];
+    const int c1 = route[(j+1)%n]; // nは0に戻る
     now_d += distance(city[c0],city[c1]);
   }
 
   swap(&route[random1], &route[random2]);
 
   double new_d=0;
-  for (int i = 0 ; i < n ; i++){
-    const int c0 = route[i];
-    const int c1 = route[(i+1)%n]; // nは0に戻る
+  for (int k = 0 ; k < n ; k++){
+    const int c0 = route[k];
+    const int c1 = route[(k+1)%n]; // nは0に戻る
     new_d += distance(city[c0],city[c1]);
   }
 
@@ -238,7 +238,13 @@ double solve(const City *city, int n, int *route)
     swap(&route[random1],&route[random2]);
   }
 }
-
+double sum_d = 0;
+  for (int i = 0 ; i < n ; i++){
+    const int c0 = route[i];
+    const int c1 = route[(i+1)%n]; // nは0に戻る
+    sum_d += distance(city[c0],city[c1]);
+  }
+  return sum_d;
 }
 
 /*void sum_d(int **route, int n){
