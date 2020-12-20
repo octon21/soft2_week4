@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <errno.h> // strtol のエラー判定用
+#include <time.h>
 
 // 町の構造体（今回は2次元座標）を定義
 typedef struct
@@ -45,6 +46,8 @@ Map init_map(const int width, const int height);
 void free_map_dot(Map m);
 
 City *load_cities(const char* filename,int *n);
+
+void swap(int*, int*);
 
 Map init_map(const int width, const int height)
 {
@@ -105,6 +108,7 @@ int main(int argc, char**argv)
   // 訪れた町を記録するフラグ
   int *visited = (int*)calloc(n, sizeof(int));
 
+  srand((unsigned)time(NULL));
   const double d = solve(city,n,route);
   plot_cities(fp, map, city, n, route);
   printf("total distance = %f\n", d);
@@ -178,19 +182,7 @@ double distance(City a, City b)
   const double dy = a.y - b.y;
   return sqrt(dx * dx + dy * dy);
 }
-/*void sum_d(int *route,int n, City *city){
-  double sum_d = 0;
-  for (int i = 0 ; i < n ; i++){
-    sum_d += distance(city[route[i]],city[route[(i+1)%n]]);
-  }
-}*/
 
-/*void swap(int **arr, int idx1, int idx2){
-  int *tmp;
-  tmp=arr[idx1];
-  arr[idx1]=arr[idx2];
-  arr[idx2]=tmp;
-}*/
 void swap(int *x, int *y){
   int tmp=*x;
   *x=*y;
@@ -199,63 +191,68 @@ void swap(int *x, int *y){
 
 double solve(const City *city, int n, int *route)
 {
-  // 以下はとりあえずダミー。ここに探索プログラムを実装する
-  // 現状は町の番号順のルートを回っているだけ
-  // 実際は再帰的に探索して、組み合わせが膨大になる。
-  route[0] = 0; // 循環した結果を避けるため、常に0番目からスタート
-  //visited[0] = 1;
-  for (int i = 0 ; i < n ; i++){
-    route[i] = i;
-    //visited[i] = 1; // 訪問済みかチェック
-  }
-  //double now_d,new_d;
+
+  int add=0;
+  int l=3;
+  double ans_d=100000;
+  int ans_route[n];
+  for(int k=0;k<l;k++){
+    if(add!=0&&n%add==0){
+      add++;
+    }
+    else{
+      for (int i = 0 ; i < n ; i++){
+      route[i] = (i*(add+1)%n); 
+      }
+
+      for(int i=0;i<n; i++){
+        int random1, random2;
+        random1=rand()%n;
+        random2=rand()%n;
   
-  for(int i=0;i<n; i++){
-    int random1, random2;
-    random1=rand()%n;
-    random2=rand()%n;
+        double now_d=0;
+        for (int j = 1 ; j < n ; j++){
+          const int c0 = route[j];
+          const int c1 = route[(j+1)%n]; // nは0に戻る
+          now_d += distance(city[c0],city[c1]);
+        }
+
+      swap(&route[random1], &route[random2]);
+
+      double new_d=0;
+      for (int k = 0 ; k < n ; k++){
+        const int c0 = route[k];
+        const int c1 = route[(k+1)%n]; // nは0に戻る
+        new_d += distance(city[c0],city[c1]);
+      }
+
+      if(new_d<now_d){
+      //do nothing
+      }
+      else{
+       swap(&route[random1],&route[random2]);
+       }
+    }
+    }
+    double sum_d = 0;
+    for (int i = 0 ; i < n ; i++){
+      const int c0 = route[i];
+      const int c1 = route[(i+1)%n]; // nは0に戻る
+      sum_d += distance(city[c0],city[c1]);
+    }
+    if(sum_d<ans_d){
+      ans_d=sum_d;
+      for(int i=0; i<n;i++){
+        ans_route[i]=route[i];
+      }
+    }
+  }
   
-  double now_d=0;
-  for (int j = 0 ; j < n ; j++){
-    const int c0 = route[j];
-    const int c1 = route[(j+1)%n]; // nは0に戻る
-    now_d += distance(city[c0],city[c1]);
-  }
 
-  swap(&route[random1], &route[random2]);
-
-  double new_d=0;
-  for (int k = 0 ; k < n ; k++){
-    const int c0 = route[k];
-    const int c1 = route[(k+1)%n]; // nは0に戻る
-    new_d += distance(city[c0],city[c1]);
-  }
-
-  if(new_d<now_d){
-    //do nothing
-  }
-  else{
-    swap(&route[random1],&route[random2]);
-  }
+  for(int i=0; i<n; i++){
+    route[i]=ans_route[i];
+  }route[20]=ans_route[0];
+  
+  return ans_d;
+  
 }
-double sum_d = 0;
-  for (int i = 0 ; i < n ; i++){
-    const int c0 = route[i];
-    const int c1 = route[(i+1)%n]; // nは0に戻る
-    sum_d += distance(city[c0],city[c1]);
-  }
-  return sum_d;
-}
-
-/*void sum_d(int **route, int n){
-    double sum=0;
-  for (int i = 0 ; i < n ; i++){
-    route[i] = i;
-  }
-
-  for (int i = 0 ; i < n ; i++){
-    const int c0 = route[i];
-    const int c1 = route[(i+1)%n]; // nは0に戻る
-    sum_d += distance(city[c0],city[c1]);
-  }
-}*/
