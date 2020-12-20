@@ -193,7 +193,7 @@ double solve(const City *city, int n, int *route)
 {
 
   int add=0;
-  int l=3;
+  int l=1000;
   double ans_d=100000;
   int ans_route[n];
   for(int k=0;k<l;k++){
